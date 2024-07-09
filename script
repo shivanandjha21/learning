@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Get the current git tag
+CURRENT_TAG=$(git describe --tags --exact-match 2>/dev/null)
+
+# Define the regular expression for the desired tag pattern
+TAG_PATTERN="^rel-[0-9]+\.[0-9]+\.[0-9]+$"
+
+# Check if the current tag matches the pattern
+if [[ $CURRENT_TAG =~ $TAG_PATTERN ]]; then
+    echo "Tag $CURRENT_TAG matches the pattern."
+    export TAG_MATCHES=true
+else
+    echo "Tag $CURRENT_TAG does not match the pattern."
+    export TAG_MATCHES=false
+fi
+
+# Export the variable for use in the Buildkite pipeline
+echo "export TAG_MATCHES=$TAG_MATCHES" >> "$BUILDKITE_ENV_FILE"
