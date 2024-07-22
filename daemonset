@@ -1,0 +1,71 @@
+provider "kubernetes" {
+  config_path = "~/.kube/config"
+}
+
+variable "namespace" {
+  description = "The namespace of the daemonset"
+  type        = string
+  default     = "default"
+}
+
+variable "daemonset_name" {
+  description = "The name of the daemonset to update"
+  type        = string
+  default     = "my-daemonset"
+}
+
+variable "cpu_requests" {
+  description = "The CPU requests in millicores"
+  type        = string
+  default     = "200m"
+}
+
+variable "cpu_limits" {
+  description = "The CPU limits in millicores"
+  type        = string
+  default     = "500m"
+}
+
+resource "kubernetes_daemonset" "example" {
+  metadata {
+    name      = var.daemonset_name
+    namespace = var.namespace
+  }
+
+  spec {
+    selector {
+      match_labels = {
+        app = var.daemonset_name
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = var.daemonset_name
+        }
+      }
+
+      spec {
+        container {
+          name  = var.daemonset_name
+          image = "nginx:latest"
+
+          resources {
+            requests = {
+              cpu = var.cpu_requests
+            }
+
+            limits = {
+              cpu = var.cpu_limits
+            }
+          }
+        }
+      }
+    }
+
+    update_strategy {
+      type = "RollingUpdate"
+    }
+  }
+}
