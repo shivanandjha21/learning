@@ -17,3 +17,8 @@ fi
 
 # Export the variable for use in the Buildkite pipeline
 echo "export TAG_MATCHES=$TAG_MATCHES" >> "$BUILDKITE_ENV_FILE"
+
+
+fetch count("builtin:kubernetes.pod.count")
+from entities
+where entitySelector = "type(KUBERNETES_CLUSTER)"
