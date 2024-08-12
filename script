@@ -25,3 +25,4 @@ where entitySelector = "type(KUBERNETES_CLUSTER)"
 
 type("KUBERNETES_POD"),managementZone("flshub")
 
+type(CLOUD_APPLICATION_INSTANCE),toRelationships.isClusterOfCai(type(KUBERNETES_CLUSTER),entityName.in("<YOUR KUBERNETES CLUSTER NAME>"))
