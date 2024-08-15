@@ -27,3 +27,11 @@ type("KUBERNETES_POD"),managementZone("flshub")
 
 type(CLOUD_APPLICATION_INSTANCE),toRelationships.isClusterOfCai(type(KUBERNETES_CLUSTER),entityName.in("<YOUR KUBERNETES CLUSTER NAME>"))
 type(KUBERNETES_POD),kubernetes.cluster.name("flshub*")
+
+kubectl get pods --all-namespaces -l app=prometheus
+kubectl get deployments --all-namespaces -l app=prometheus
+kubectl get statefulsets --all-namespaces -l app=prometheus
+kubectl get services --all-namespaces -l app=prometheus
+kubectl get crd | grep prometheus
+helm list --all-namespaces | grep prometheus
+
