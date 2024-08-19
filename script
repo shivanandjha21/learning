@@ -35,3 +35,10 @@ kubectl get services --all-namespaces -l app=prometheus
 kubectl get crd | grep prometheus
 helm list --all-namespaces | grep prometheus
 
+prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
+    metrics.dynatrace.com/scrape: 'true'
+    metrics.dynatrace.com/path: '/metrics'
+    metrics.dynatrace.com/port: '8080'
+    metrics.dynatrace.com/secure: 'false'
