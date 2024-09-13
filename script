@@ -42,3 +42,17 @@ prometheus.io/scrape: "true"
     metrics.dynatrace.com/path: '/metrics'
     metrics.dynatrace.com/port: '8080'
     metrics.dynatrace.com/secure: 'false'
+
+
+heartbeat.monitors:
+    - type: http
+      id: my-secure-site
+      name: My Secure Website
+      urls: ["https://example.com"]
+      schedule: '@every 10s'
+      check.response.status: 200
+      ssl.verification_mode: full
+      ssl.certificate_authorities: ["/secrets/test-nsp/certificates/private/ca.pem"] # Path to CA certificate file
+      ssl.certificate: "/secrets/test-nsp/certificates/private/cert.pem" # Path to client certificate file
+      ssl.key: "/secrets/test-nsp/certificates/private/cert.key" # Path to client key file
+      ssl.supported_protocols: ["TLSv1.2", "TLSv1.3"] # Supported SSL/TLS versions
