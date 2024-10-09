@@ -56,3 +56,6 @@ heartbeat.monitors:
       ssl.certificate: "/secrets/test-nsp/certificates/private/cert.pem" # Path to client certificate file
       ssl.key: "/secrets/test-nsp/certificates/private/cert.key" # Path to client key file
       ssl.supported_protocols: ["TLSv1.2", "TLSv1.3"] # Supported SSL/TLS versions
+
+builtin:kubernetes.pods:filter(eq("kubernetes.cluster.name", "<Your_Cluster_Name>"))
+
