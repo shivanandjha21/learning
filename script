@@ -59,3 +59,4 @@ heartbeat.monitors:
 
 builtin:kubernetes.pods:filter(eq("kubernetes.cluster.name", "<Your_Cluster_Name>"))
 
+builtin:kubernetes.pods:filter(eq(dt.kubernetes.cluster.name,"<CLUSTER_NAME>")):splitBy(k8s.pod.name):count
