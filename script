@@ -62,3 +62,8 @@ builtin:kubernetes.pods:filter(eq("kubernetes.cluster.name", "<Your_Cluster_Name
 builtin:kubernetes.pods:filter(eq(dt.kubernetes.cluster.name,"<CLUSTER_NAME>")):splitBy(k8s.pod.name):count
 
 builtin:containers.memory.usagePercent:splitBy("dt.entity.container_group_instance")
+
+
+https://stackoverflow.com/questions/67057913/adding-count-to-terraform-module
+
+https://github.com/hashicorp/terraform/issues/26809
