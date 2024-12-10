@@ -67,3 +67,5 @@ builtin:containers.memory.usagePercent:splitBy("dt.entity.container_group_instan
 https://stackoverflow.com/questions/67057913/adding-count-to-terraform-module
 
 https://github.com/hashicorp/terraform/issues/26809
+
+builtin:kubernetes.container.restart:filter(and(ne(k8s.cluster.name,"<CLUSTER_NAME_TO_IGNORE>"))):splitBy(k8s.cluster.name):sum
