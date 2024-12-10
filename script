@@ -69,3 +69,6 @@ https://stackoverflow.com/questions/67057913/adding-count-to-terraform-module
 https://github.com/hashicorp/terraform/issues/26809
 
 builtin:kubernetes.container.restart:filter(and(ne(k8s.cluster.name,"<CLUSTER_NAME_TO_IGNORE>"))):splitBy(k8s.cluster.name):sum
+
+builtin:kubernetes.container.restart:filter(and(or(ne(k8s.cluster.name,"prod-cluster"),ne(k8s.namespace.name,"test-namespace")))):splitBy(k8s.cluster.name,k8s.namespace.name):sum
+
