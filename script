@@ -81,3 +81,5 @@ tar -xvf grpcurl_1.7.0_linux_x86_64.tar.gz
 chmod +x grpcurl
 
 ./grpcurl -help
+
+apk update && apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing grpcurl
