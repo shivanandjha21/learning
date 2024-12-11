@@ -73,3 +73,4 @@ builtin:kubernetes.container.restart:filter(and(ne(k8s.cluster.name,"<CLUSTER_NA
 builtin:kubernetes.container.restart:filter(and(or(ne(k8s.cluster.name,"prod-cluster"),ne(k8s.namespace.name,"test-namespace")))):splitBy(k8s.cluster.name,k8s.namespace.name):sum
 
 curl -sSL "https://github.com/fullstorydev/grpcurl/releases/download/v1.8.7/grpcurl_1.8.7_linux_x86_64.tar.gz" | sudo tar -xz -C /usr/local/bin
+curl -sSL "https://github.com/fullstorydev/grpcurl/releases/download/v1.8.6/grpcurl_1.8.6_linux_x86_64.tar.gz" | tar -xz -C /usr/local/bin
