@@ -83,3 +83,8 @@ chmod +x grpcurl
 ./grpcurl -help
 
 apk update && apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing grpcurl
+
+wget https://github.com/fullstorydev/grpcurl/releases/download/v1.x.y/grpcurl_1.x.y_linux_x86_64.tar.gz
+tar -xzf grpcurl_1.x.y_linux_x86_64.tar.gz
+mv grpcurl /usr/local/bin/
+
