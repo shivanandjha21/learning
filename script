@@ -88,3 +88,4 @@ wget https://github.com/fullstorydev/grpcurl/releases/download/v1.x.y/grpcurl_1.
 tar -xzf grpcurl_1.x.y_linux_x86_64.tar.gz
 mv grpcurl /usr/local/bin/
 
+https://github.com/fullstorydev/grpcurl/releases/download/v1.9.2/grpcurl_1.9.2_linux_x86_64.tar.gz
