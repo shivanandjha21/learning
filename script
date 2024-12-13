@@ -89,3 +89,28 @@ tar -xzf grpcurl_1.x.y_linux_x86_64.tar.gz
 mv grpcurl /usr/local/bin/
 
 https://github.com/fullstorydev/grpcurl/releases/download/v1.9.2/grpcurl_1.9.2_linux_x86_64.tar.gz
+
+
+# Use Alpine Linux as the base image
+FROM alpine:latest
+
+# Install grpcurl
+RUN apk add --no-cache \
+      curl \
+      bash \
+      git \
+      build-base \
+      protoc \
+      protobuf-dev \
+      && curl -LO https://github.com/fullstorydev/grpcurl/releases/download/v1.8.8/grpcurl_1.8.8_linux_x86_64.tar.gz \
+      && tar -xvf grpcurl_1.8.8_linux_x86_64.tar.gz grpcurl \
+      && mv grpcurl /usr/local/bin/ \
+      && chmod +x /usr/local/bin/grpcurl \
+      && rm grpcurl_1.8.8_linux_x86_64.tar.gz
+
+# Verify installation
+RUN grpcurl --version
+
+# Default command
+CMD ["grpcurl"]
+
