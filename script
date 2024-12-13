@@ -139,3 +139,13 @@ FROM alpine:3.7
 ADD https://curl.haxx.se/ca/cacert.pem /etc/ssl/certs/ca-certificates.crt
 RUN apk add --no-cache curl
 COPY --from=builder /go/bin/grpcurl /
+
+# Use Alpine 3.15 as the base image
+FROM alpine:3.15
+
+
+      libc6-compat \
+      ca-certificates \
+      libressl \
+      && update-ca-certificates \
+    
