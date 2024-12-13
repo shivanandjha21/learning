@@ -134,3 +134,8 @@ CMD ["grpcurl"]
 
 RUN ls -l /usr/local/bin/grpcurl \
     && grpcurl --version
+
+FROM alpine:3.7
+ADD https://curl.haxx.se/ca/cacert.pem /etc/ssl/certs/ca-certificates.crt
+RUN apk add --no-cache curl
+COPY --from=builder /go/bin/grpcurl /
