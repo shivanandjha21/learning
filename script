@@ -132,3 +132,5 @@ RUN grpcurl --version
 
 CMD ["grpcurl"]
 
+RUN ls -l /usr/local/bin/grpcurl \
+    && grpcurl --version
