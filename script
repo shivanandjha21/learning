@@ -160,3 +160,10 @@ RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/s
 RUN wget -q -O glibc-2.35-r0.tar.gz https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r0/glibc-2.35-r0.tar.gz \
     && tar -xvf glibc-2.35-r0.tar.gz -C /usr/ \
     && rm glibc-2.35-r0.tar.gz
+
+
+COPY sgerrand.rsa.pub /etc/apk/keys/
+COPY glibc-2.35-r0.apk .
+
+# Install glibc
+RUN apk add glibc-2.35-r0.apk && rm glibc-2.35-r0.apk
