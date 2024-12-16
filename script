@@ -194,3 +194,6 @@ EXPOSE 8080
 
 # Command to run your application
 CMD ["grpcurl", "-help"]
+
+builtin:kubernetes.container.restarts:filter(eq(kubernetes.cluster.name, "your-cluster-name")):filter(eq(kubernetes.namespace.name, "your-namespace")):splitBy()
+
