@@ -197,3 +197,19 @@ CMD ["grpcurl", "-help"]
 
 builtin:kubernetes.container.restarts:filter(eq(kubernetes.cluster.name, "your-cluster-name")):filter(eq(kubernetes.namespace.name, "your-namespace")):splitBy()
 
+
+# Use a base image
+FROM ubuntu:latest
+
+# Set the home directory environment variable
+ENV HOME /home
+
+# Copy a folder from your local directory to the container's home directory
+COPY my_folder/ $HOME/my_folder/
+
+# Set the working directory (optional, to operate in home)
+WORKDIR $HOME
+
+# Default command (optional)
+CMD [ "ls", "-la", "$HOME/my_folder" ]
+
