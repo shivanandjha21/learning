@@ -383,3 +383,5 @@ output "db_instance_arn" {
   description = "RDS instance ARN"
   value       = aws_db_instance.postgres.arn
 }
+
+enabled_cloudwatch_logs_exports = ["postgresql", "upgrade", "error"]
