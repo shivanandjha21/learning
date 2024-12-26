@@ -213,3 +213,106 @@ WORKDIR $HOME
 # Default command (optional)
 CMD [ "ls", "-la", "$HOME/my_folder" ]
 
+
+
+
+# Configure AWS provider
+provider "aws" {
+  region = "us-east-1" # Replace with your desired AWS region
+}
+
+# VPC
+resource "aws_vpc" "rds_vpc" {
+  cidr_block = "10.0.0.0/16"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  tags = {
+    Name = "rds-vpc"
+  }
+}
+
+# Subnets
+resource "aws_subnet" "rds_subnet_1" {
+  vpc_id            = aws_vpc.rds_vpc.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "us-east-1a"
+  tags = {
+    Name = "rds-subnet-1"
+  }
+}
+
+resource "aws_subnet" "rds_subnet_2" {
+  vpc_id            = aws_vpc.rds_vpc.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "us-east-1b"
+  tags = {
+    Name = "rds-subnet-2"
+  }
+}
+
+# Subnet Group
+resource "aws_db_subnet_group" "rds_subnet_group" {
+  name       = "rds-subnet-group"
+  subnet_ids = [aws_subnet.rds_subnet_1.id, aws_subnet.rds_subnet_2.id]
+  tags = {
+    Name = "rds-subnet-group"
+  }
+}
+
+# Security Group
+resource "aws_security_group" "rds_sg" {
+  name   = "rds-security-group"
+  vpc_id = aws_vpc.rds_vpc.id
+
+  ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # Restrict to your IP range for better security
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "rds-security-group"
+  }
+}
+
+# RDS Instance
+resource "aws_db_instance" "postgres" {
+  allocated_storage      = 20
+  max_allocated_storage  = 100
+  engine                 = "postgres"
+  engine_version         = "14.4"
+  instance_class         = "db.t3.medium"
+  name                   = "exampledb"
+  username               = "admin"
+  password               = "securepassword" # Store securely, e.g., in AWS Secrets Manager
+  parameter_group_name   = "default.postgres14"
+  publicly_accessible    = false
+  vpc_security_group_ids = [aws_security_group.rds_sg.id]
+  db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name
+  storage_encrypted      = true
+  skip_final_snapshot    = true
+
+  tags = {
+    Name        = "rds-postgresql"
+    Environment = "production"
+  }
+}
+
+# Outputs
+output "db_instance_endpoint" {
+  description = "RDS instance endpoint"
+  value       = aws_db_instance.postgres.endpoint
+}
+
+output "db_instance_arn" {
+  description = "RDS instance ARN"
+  value       = aws_db_instance.postgres.arn
+}
