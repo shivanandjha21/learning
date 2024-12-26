@@ -216,14 +216,81 @@ CMD [ "ls", "-la", "$HOME/my_folder" ]
 
 
 
-# Configure AWS provider
+# Variables
+variable "region" {
+  description = "AWS region for the resources"
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "vpc_cidr" {
+  description = "CIDR block for the VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "subnet_cidrs" {
+  description = "List of CIDR blocks for subnets"
+  type        = list(string)
+  default     = ["10.0.1.0/24", "10.0.2.0/24"]
+}
+
+variable "availability_zones" {
+  description = "List of availability zones"
+  type        = list(string)
+  default     = ["us-east-1a", "us-east-1b"]
+}
+
+variable "db_instance_class" {
+  description = "Instance class for the RDS instance"
+  type        = string
+  default     = "db.t3.medium"
+}
+
+variable "db_engine" {
+  description = "Database engine"
+  type        = string
+  default     = "postgres"
+}
+
+variable "db_engine_version" {
+  description = "Database engine version"
+  type        = string
+  default     = "14.4"
+}
+
+variable "db_name" {
+  description = "Name of the database"
+  type        = string
+  default     = "exampledb"
+}
+
+variable "db_username" {
+  description = "Database username"
+  type        = string
+  default     = "admin"
+}
+
+variable "db_password" {
+  description = "Database password"
+  type        = string
+  sensitive   = true
+}
+
+variable "environment" {
+  description = "Environment tag for resources"
+  type        = string
+  default     = "production"
+}
+
+# Provider
 provider "aws" {
-  region = "us-east-1" # Replace with your desired AWS region
+  region = var.region
 }
 
 # VPC
 resource "aws_vpc" "rds_vpc" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block           = var.vpc_cidr
   enable_dns_support   = true
   enable_dns_hostnames = true
   tags = {
@@ -234,8 +301,8 @@ resource "aws_vpc" "rds_vpc" {
 # Subnets
 resource "aws_subnet" "rds_subnet_1" {
   vpc_id            = aws_vpc.rds_vpc.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "us-east-1a"
+  cidr_block        = var.subnet_cidrs[0]
+  availability_zone = var.availability_zones[0]
   tags = {
     Name = "rds-subnet-1"
   }
@@ -243,8 +310,8 @@ resource "aws_subnet" "rds_subnet_1" {
 
 resource "aws_subnet" "rds_subnet_2" {
   vpc_id            = aws_vpc.rds_vpc.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "us-east-1b"
+  cidr_block        = var.subnet_cidrs[1]
+  availability_zone = var.availability_zones[1]
   tags = {
     Name = "rds-subnet-2"
   }
@@ -268,7 +335,7 @@ resource "aws_security_group" "rds_sg" {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Restrict to your IP range for better security
+    cidr_blocks = ["0.0.0.0/0"] # Replace with your IP range for better security
   }
 
   egress {
@@ -287,12 +354,12 @@ resource "aws_security_group" "rds_sg" {
 resource "aws_db_instance" "postgres" {
   allocated_storage      = 20
   max_allocated_storage  = 100
-  engine                 = "postgres"
-  engine_version         = "14.4"
-  instance_class         = "db.t3.medium"
-  name                   = "exampledb"
-  username               = "admin"
-  password               = "securepassword" # Store securely, e.g., in AWS Secrets Manager
+  engine                 = var.db_engine
+  engine_version         = var.db_engine_version
+  instance_class         = var.db_instance_class
+  name                   = var.db_name
+  username               = var.db_username
+  password               = var.db_password
   parameter_group_name   = "default.postgres14"
   publicly_accessible    = false
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
@@ -302,7 +369,7 @@ resource "aws_db_instance" "postgres" {
 
   tags = {
     Name        = "rds-postgresql"
-    Environment = "production"
+    Environment = var.environment
   }
 }
 
