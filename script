@@ -437,3 +437,171 @@ password = data.vault_generic_secret.rds_credentials.data["password"]
 data "vault_generic_secret" "rds_credentials" {
   path = "kv/rds-postgresql"
 }
+
+
+# Provider Configuration
+provider "aws" {
+  region = "us-east-1" # Update with your desired region
+}
+
+# Variables
+variable "db_name" {
+  default = "exampledb"
+}
+
+variable "username" {
+  default = "admin"
+}
+
+variable "password" {
+  default = "securepassword"
+}
+
+variable "vpc_cidr" {
+  default = "10.0.0.0/16"
+}
+
+variable "subnet_cidrs" {
+  default = ["10.0.1.0/24", "10.0.2.0/24"]
+}
+
+# VPC
+resource "aws_vpc" "rds_vpc" {
+  cidr_block = var.vpc_cidr
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+
+  tags = {
+    Name = "rds-vpc"
+  }
+}
+
+# Subnets
+resource "aws_subnet" "rds_subnets" {
+  count           = length(var.subnet_cidrs)
+  vpc_id          = aws_vpc.rds_vpc.id
+  cidr_block      = element(var.subnet_cidrs, count.index)
+  availability_zone = element(data.aws_availability_zones.available.names, count.index)
+
+  tags = {
+    Name = "rds-subnet-${count.index + 1}"
+  }
+}
+
+# Subnet Group
+resource "aws_db_subnet_group" "rds_subnet_group" {
+  name       = "rds-subnet-group"
+  subnet_ids = aws_subnet.rds_subnets[*].id
+
+  tags = {
+    Name = "rds-subnet-group"
+  }
+}
+
+# Security Group
+resource "aws_security_group" "rds_sg" {
+  name   = "rds-security-group"
+  vpc_id = aws_vpc.rds_vpc.id
+
+  ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # Update for better security
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "rds-security-group"
+  }
+}
+
+# RDS Primary Instance
+resource "aws_db_instance" "primary" {
+  allocated_storage      = 20
+  max_allocated_storage  = 100
+  engine                 = "postgres"
+  engine_version         = "14.4"
+  instance_class         = "db.t3.medium"
+  name                   = var.db_name
+  username               = var.username
+  password               = var.password
+  db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name
+  vpc_security_group_ids = [aws_security_group.rds_sg.id]
+  storage_encrypted      = true
+  monitoring_role_arn    = aws_iam_role.enhanced_monitoring.arn
+  monitoring_interval    = 60
+  skip_final_snapshot    = true
+  publicly_accessible    = false
+
+  tags = {
+    Name = "rds-primary-instance"
+  }
+}
+
+# IAM Role for Enhanced Monitoring
+resource "aws_iam_role" "enhanced_monitoring" {
+  name               = "rds-monitoring-role"
+  assume_role_policy = data.aws_iam_policy_document.enhanced_monitoring.json
+}
+
+data "aws_iam_policy_document" "enhanced_monitoring" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["monitoring.rds.amazonaws.com"]
+    }
+  }
+}
+
+# RDS Read Replicas
+resource "aws_db_instance" "read_replica_1" {
+  identifier                = "read-replica-1"
+  instance_class            = "db.t3.medium"
+  source_db_instance_identifier = aws_db_instance.primary.id
+  db_subnet_group_name      = aws_db_subnet_group.rds_subnet_group.name
+  vpc_security_group_ids    = [aws_security_group.rds_sg.id]
+  publicly_accessible       = false
+  storage_encrypted         = true
+
+  tags = {
+    Name = "read-replica-1"
+  }
+}
+
+resource "aws_db_instance" "read_replica_2" {
+  identifier                = "read-replica-2"
+  instance_class            = "db.t3.medium"
+  source_db_instance_identifier = aws_db_instance.primary.id
+  db_subnet_group_name      = aws_db_subnet_group.rds_subnet_group.name
+  vpc_security_group_ids    = [aws_security_group.rds_sg.id]
+  publicly_accessible       = false
+  storage_encrypted         = true
+
+  tags = {
+    Name = "read-replica-2"
+  }
+}
+
+# Outputs
+output "primary_endpoint" {
+  description = "RDS Primary Instance Endpoint"
+  value       = aws_db_instance.primary.endpoint
+}
+
+output "read_replica_1_endpoint" {
+  description = "RDS Read Replica 1 Endpoint"
+  value       = aws_db_instance.read_replica_1.endpoint
+}
+
+output "read_replica_2_endpoint" {
+  description = "RDS Read Replica 2 Endpoint"
+  value       = aws_db_instance.read_replica_2.endpoint
+}
