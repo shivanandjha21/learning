@@ -69,3 +69,75 @@ resource "kubernetes_daemonset" "example" {
     }
   }
 }
+
+
+
+provider "aws" {
+  region = "us-east-1" # Replace with your desired AWS region
+}
+
+# Security Group for RDS
+resource "aws_security_group" "db_sg" {
+  name        = "multi-az-postgres-cluster-sg"
+  description = "Security group for Multi-AZ PostgreSQL DB cluster"
+
+  ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # Restrict this in production
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Subnet Group
+resource "aws_db_subnet_group" "db_subnet_group" {
+  name        = "multi-az-postgres-cluster-subnet-group"
+  description = "Subnet group for Multi-AZ PostgreSQL DB cluster"
+  subnet_ids  = ["subnet-xxxxxx", "subnet-yyyyyy"] # Replace with your subnet IDs
+}
+
+# Multi-AZ DB Cluster
+resource "aws_rds_cluster" "pg_cluster" {
+  cluster_identifier      = "multi-az-pg-cluster"
+  engine                  = "postgres"
+  engine_version          = "14.6" # Replace with the desired PostgreSQL version
+  master_username         = "admin"
+  master_password         = "adminpassword" # Secure this properly
+  database_name           = "exampledb"
+  storage_encrypted       = true
+  kms_key_id              = "arn:aws:kms:us-east-1:123456789012:key/your-kms-key-id" # Optional
+  backup_retention_period = 7
+  preferred_backup_window = "02:00-03:00"
+  db_subnet_group_name    = aws_db_subnet_group.db_subnet_group.name
+  vpc_security_group_ids  = [aws_security_group.db_sg.id]
+}
+
+# Primary Instance
+resource "aws_rds_cluster_instance" "primary_instance" {
+  identifier              = "pg-cluster-primary"
+  cluster_identifier      = aws_rds_cluster.pg_cluster.id
+  instance_class          = "db.r6g.large" # Replace with your desired instance type
+  engine                  = aws_rds_cluster.pg_cluster.engine
+
+  publicly_accessible     = false
+  availability_zone       = "us-east-1a" # Primary AZ
+}
+
+# Reader Instance
+resource "aws_rds_cluster_instance" "reader_instance" {
+  count                   = 2 # Create 2 reader instances for high availability
+  identifier              = "pg-cluster-reader-${count.index + 1}"
+  cluster_identifier      = aws_rds_cluster.pg_cluster.id
+  instance_class          = "db.r6g.large"
+  engine                  = aws_rds_cluster.pg_cluster.engine
+
+  publicly_accessible     = false
+  availability_zone       = element(["us-east-1b", "us-east-1c"], count.index) # Other AZs
+}
