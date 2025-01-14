@@ -150,3 +150,9 @@ resource "aws_rds_cluster_instance" "reader_instance" {
 
 BUILD_ARGS: --build-arg ARTIFACTORY_USERNAME=${{ secrets.ARTIFACTORY_USERNAME }} --build-arg ARTIFACTORY_PASSWORD=${{ secrets.ARTIFACTORY_PASSWORD }}
         password: ${{ secrets.SMTP_PASSWORD }}
+
+- name: Debug workspace
+  run: |
+    pwd
+    ls -R /workspace
+
