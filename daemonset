@@ -156,3 +156,4 @@ BUILD_ARGS: --build-arg ARTIFACTORY_USERNAME=${{ secrets.ARTIFACTORY_USERNAME }}
     pwd
     ls -R /workspace
 
+find . -type f -name "Dockerfile"
