@@ -157,3 +157,7 @@ BUILD_ARGS: --build-arg ARTIFACTORY_USERNAME=${{ secrets.ARTIFACTORY_USERNAME }}
     ls -R /workspace
 
 find . -type f -name "Dockerfile"
+
+https://graph-gateway.nepdev.nationwide.co.uk/health
+
+https://graph-gateway.neptest.nationwide.co.uk/health
