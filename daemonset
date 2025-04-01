@@ -161,3 +161,24 @@ find . -type f -name "Dockerfile"
 https://graph-gateway.nepdev.nationwide.co.uk/health
 
 https://graph-gateway.neptest.nationwide.co.uk/health
+
+provider "azurerm" {
+  features {}
+}
+
+resource "azurerm_key_vault" "example" {
+  name                        = "examplekv123"   # Name of your KeyVault, must be globally unique
+  location                    = "East US"         # Location of the KeyVault
+  resource_group_name         = "example-resources" # Your Resource Group name
+  sku_name                    = "standard"        # SKU type: standard or premium
+
+  tenant_id                   = data.azurerm_client_config.example.tenant_id
+}
+
+data "azurerm_client_config" "example" {}
+
+module "my_module" {
+  source     = "./modules/my_module"
+  depends_on = [azurerm_key_vault.example]  # Ensure Key Vault is created first
+}
+
