@@ -607,3 +607,8 @@ output "read_replica_2_endpoint" {
 }
 
 https://github.com/bjh1977/AdalSQL/blob/master/MSI/15.0.1000.16/x64/adalsql.msi?raw=true
+
+https://github.com/bjh1977/AdalSQL
+
+regsvr32 C:\Windows\System32\adalsql.dll
+
