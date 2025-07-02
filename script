@@ -605,3 +605,5 @@ output "read_replica_2_endpoint" {
   description = "RDS Read Replica 2 Endpoint"
   value       = aws_db_instance.read_replica_2.endpoint
 }
+
+https://github.com/bjh1977/AdalSQL/blob/master/MSI/15.0.1000.16/x64/adalsql.msi?raw=true
